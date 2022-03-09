@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -30,7 +28,7 @@ public:
 	
 	void Bind(UInputComponent* InputComponent, FName ControlName);
 	void Release();
-
+	
 private:
 	FInputActionBinding* BindingPressed;
 	FInputActionBinding* BindingReleased;
@@ -40,6 +38,24 @@ private:
 	void Input_OnReleased() { State = EButtonState::Released; }
 	
 public:
+	
+	UButtonControl& operator=(UButtonControl& rhs)
+	{
+		if(&rhs == this) return *this;
+		
+		Release();
+		
+		bIsBound = false;
+		BoundControlName = rhs.BoundControlName;
+		BindingSource = rhs.BindingSource;
+		State = rhs.State;
+
+		rhs.Release();
+		Bind(BindingSource, BoundControlName);
+		
+		return *this;
+	}
+	
 	UButtonControl() :
 		bIsBound(false),
 		BoundControlName(""),

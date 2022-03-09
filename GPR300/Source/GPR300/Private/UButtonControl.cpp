@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "GPR300/Public/UButtonControl.h"
 
 void UButtonControl::Bind(UInputComponent* InputComponent, const FName ControlName)

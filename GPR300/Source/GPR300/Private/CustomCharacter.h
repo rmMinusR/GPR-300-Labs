@@ -5,11 +5,12 @@
 #include "GPR300/Public/UButtonControl.h"
 #include "CustomCharacter.generated.h"
 
-USTRUCT()
-struct FControlInput
+UCLASS()
+class UControlInput final : public UObject
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY()
 	float MoveX;
 	
@@ -21,24 +22,46 @@ struct FControlInput
 
 	UPROPERTY()
 	bool bGroundPound;
-
+	
+	UControlInput() = default;
+	virtual ~UControlInput() override = default;
+	
+private:
 	FInputAxisBinding* Input_MoveX;
 	FInputAxisBinding* Input_MoveY;
-	FInputActionBinding* Input_Jump;
-	FInputActionBinding* Input_GroundPound;
+	UButtonControl Input_Jump;
+	UButtonControl Input_GroundPound;
 
-	FControlInput() = default;
-	~FControlInput() = default;
-
-	void Bind()
+public:
+	/*
+	FControlInput& operator=(FControlInput& rhs)
 	{
+		Input_MoveX = rhs.Input_MoveX; rhs.Input_MoveX = nullptr;
+		Input_MoveY = rhs.Input_MoveY; rhs.Input_MoveY = nullptr;
 		
+		Input_Jump = rhs.Input_Jump;
+		Input_GroundPound = rhs.Input_GroundPound;
+		
+		return *this;
+	}
+	*/
+	
+	void Bind(UInputComponent* InputComponent)
+	{
+		Input_MoveX = &InputComponent->BindAxis("MoveX");
+		Input_MoveY = &InputComponent->BindAxis("MoveY");
+		
+		Input_Jump       .Bind(InputComponent, "Jump"       );
+		Input_GroundPound.Bind(InputComponent, "GroundPound");
 	}
 	
 	void Update()
 	{
 		if(Input_MoveX) MoveX = Input_MoveX->AxisValue;
 		if(Input_MoveY) MoveY = Input_MoveY->AxisValue;
+		
+		if(Input_Jump       .bIsBound) bJump = (Input_Jump       .State == EButtonState::Pressed);
+		if(Input_GroundPound.bIsBound) bJump = (Input_GroundPound.State == EButtonState::Pressed);
 	}
 };
 
@@ -64,6 +87,6 @@ public:
 	
 private: //Input helper
 
-	//UPROPERTY(VisibleInstanceOnly)
-	//FControlInput ControlInput;
+	UPROPERTY(VisibleInstanceOnly)
+	UControlInput* ControlInput;
 };
